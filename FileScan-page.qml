@@ -22,6 +22,7 @@ ColumnLayout {
         id: result
         text: ""
         wrapMode: TextEdit.WordWrap
-        width: 10000
+        //width: 10000
+        Layout.preferredWidth: 1000
     }
 }
