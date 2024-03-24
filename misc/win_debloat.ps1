@@ -1,36 +1,3 @@
-<#
-.SYNOPSIS
-    This script performs an advanced debloat process on Windows while maintaining the highest possible security level.
-
-.DESCRIPTION
-    The script removes unnecessary Windows Store apps, built-in apps, disables telemetry, disables unnecessary services, removes scheduled tasks, disables unnecessary features, and hardens various security settings. It also provides options to backup and restore system settings.
-
-.PARAMETER BackupSettings
-    Performs a backup of system settings before making any changes.
-
-.PARAMETER RestoreSettings
-    Restores system settings from a previous backup.
-
-.PARAMETER SkipBackup
-    Skips the backup process and proceeds with the debloat process.
-
-.EXAMPLE
-    .\AdvancedDebloat.ps1 -BackupSettings
-    Performs a backup of system settings and then proceeds with the debloat process.
-
-.EXAMPLE
-    .\AdvancedDebloat.ps1 -RestoreSettings
-    Restores system settings from a previous backup.
-
-.EXAMPLE
-    .\AdvancedDebloat.ps1 -SkipBackup
-    Skips the backup process and proceeds with the debloat process.
-
-.NOTES
-    Author: [Your Name]
-    Last Updated: [Date]
-#>
-
 param (
     [switch]$BackupSettings,
     [switch]$RestoreSettings,
