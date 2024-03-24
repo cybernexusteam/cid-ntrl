@@ -4,10 +4,13 @@ import av_lib
 import configparser
 import os
 from pathlib import Path
+import json
+import ai
 
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, QmlElement
 from PySide6.QtCore import QObject, Slot
+from PySide6.QtWidgets import QListView
 
 QML_IMPORT_NAME = "io.github.cybernexus.ntrl.App.Bridge"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -41,8 +44,23 @@ class Bridge(QObject):
     @Slot(result=str)
     def getScanDir(self):
         return get_config("scanDir")
+    @Slot(result=list)
+    def getLastScanResult(self):
+        return json.loads(get_from_file("config", "scan"))
+    @Slot(result=str)
+    def scanDirectory(self):
+        av_lib.ensure_running()
+        out = av_lib.scan_dir(self.getScanDir())
+        print(out)
+        return json.dumps(out)
+    @Slot(str,result=str)
+    def promptAi(self, scan_result):
+        scan_result = json.loads(scan_result)
+        out = list(map(lambda x: (ai.get_resp(x[1], self.getApiKey()), x[0]), scan_result))
+        print(out)
+        return json.dumps(out)
 
-def get_config(prop):
+def get_from_file(section, prop):
     file_path = ""
     if os.name == "posix":
         file_path = os.environ["HOME"] + "/.config/ntrl/ntrl.conf"
@@ -51,8 +69,10 @@ def get_config(prop):
     
     config = configparser.ConfigParser()
     config.read(file_path)
-    print(config.get("config", prop))
-    return config.get("config", prop)
+    return config.get(section, prop)
+
+def get_config(prop):
+    return get_from_file("config", prop)
 
 # writes a dictionary of configs to the config file
 def write_config(configs):
