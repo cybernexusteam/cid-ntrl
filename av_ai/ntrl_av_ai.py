@@ -4,7 +4,6 @@ def get_resp(name, key):
     # Initialize OpenAI client with your API key
     client = OpenAI(api_key=key) # Replace with your own API KEY
 
-# Define the user input as a string variable
 
 # Create chat completion request with dynamic user input
     completion = client.chat.completions.create(
