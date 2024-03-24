@@ -1,10 +1,86 @@
 import sys
 from pathlib import Path
 import av_lib
+import configparser
+import os
+from pathlib import Path
 
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import QQmlApplicationEngine, QmlElement
+from PySide6.QtCore import QObject, Slot
 
+QML_IMPORT_NAME = "io.github.cybernexus.ntrl.App.Bridge"
+QML_IMPORT_MAJOR_VERSION = 1
+@QmlElement
+class Bridge(QObject):
+    @Slot(str)
+    def setApiKey(self, s):
+        write_config({
+            "apiKey": s
+        })
+    
+    @Slot(result=str)
+    def getApiKey(self):
+        return get_config("apiKey")
+    
+    @Slot(str)
+    def setPollRate(self, s):
+        write_config({
+            "pollRate": s
+        })
+    
+    @Slot(result=str)
+    def getPollRate(self):
+        return get_config("pollRate")
+    
+    @Slot(str)
+    def setScanDir(self, s):
+        write_config({
+            "scanDir": s
+        })
+    @Slot(result=str)
+    def getScanDir(self):
+        return get_config("scanDir")
+
+def get_config(prop):
+    file_path = ""
+    if os.name == "posix":
+        file_path = os.environ["HOME"] + "/.config/ntrl/ntrl.conf"
+    elif os.name == "nt":
+        file_path = os.environ["APPDATA"] + "\\ntrl\\ntrl.conf"
+    
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    print(config.get("config", prop))
+    return config.get("config", prop)
+
+# writes a dictionary of configs to the config file
+def write_config(configs):
+    file_path = ""
+    if os.name == "posix":
+        file_path = os.environ["HOME"] + "/.config/ntrl/ntrl.conf"
+    elif os.name == "nt":
+        file_path = os.environ["APPDATA"] + "\\ntrl\\ntrl.conf"
+
+    config = configparser.ConfigParser()
+    if not os.path.isfile(file_path):
+        Path(os.environ["APPDATA"] + "\\ntrl").mkdir(parents=True, exist_ok=True)
+        Path(file_path).touch()
+        with open("copy.txt", "w") as file:
+            config.add_section('config')
+            if os.name == "posix":
+                config.set("config", "scanDir", os.environ["HOME"] + "/Downloads")
+            elif os.name == "nt":
+                config.set("config", "scanDir", os.environ["USERPROFILE"] + "\\Downloads")
+            config.set("config", "pollRate", "weekly")
+            config.set("config", "apiKey", "")
+            config.write(file)
+
+    config.read(file_path)
+    for key, value in configs.items():
+        config.set("config", key, value)
+    with open(file_path, "w") as f:
+        config.write(f)
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)

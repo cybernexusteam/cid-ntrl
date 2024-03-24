@@ -1,0 +1,5 @@
+[config]
+scandir = C:\Users\yavko\Downloads
+pollrate = weekly
+apikey = 
+
